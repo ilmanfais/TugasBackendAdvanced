@@ -36,7 +36,7 @@ exports.show = (req, res) => {
 
 exports.create = (req, res) => {
   const presensi = {
-    nama: req.body.nama,
+    idmhs: req.body.idmhs,
     status: req.body.status,
   };
 
@@ -88,6 +88,53 @@ exports.destroy = (req, res) => {
     .catch((err) => {
       res.status(500).json({
         message: err.message || "Gagal dihapus",
+      });
+    });
+};
+
+
+exports.Mhs = (req, res) => {
+  const id = req.params.id; // Mengambil id dari permintaan HTTP
+
+  // Mengambil data presensi
+  Presensi.findByPk(id)
+    .then((presensi) => {
+      if (!presensi) {
+        return res.status(404).json({ message: "Data presensi tidak ditemukan" });
+      }
+
+      // Mengambil data mahasantri terkait
+      Mahasantri.findByPk(presensi.idmhs)
+        .then((mahasantri) => {
+          if (!mahasantri) {
+            return res.status(404).json({ message: "Data mahasantri tidak ditemukan" });
+          }
+
+          // Menggabungkan informasi presensi dan mahasantri
+          const presensiInfo = {
+            idmhs: presensi.idmhs,
+            status: presensi.status,
+            nama: mahasantri.nama,
+            asal: mahasantri.asal,
+            umur: mahasantri.umur,
+            telepon: mahasantri.telepon,
+          };
+
+          // Mengembalikan hasil sebagai respons JSON
+          res.json({
+            message: "Data presensi ditemukan",
+            data: presensiInfo,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: err.message || "Terjadi kesalahan saat mencari data mahasantri",
+          });
+        });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: err.message || "Terjadi kesalahan saat mencari data presensi",
       });
     });
 };

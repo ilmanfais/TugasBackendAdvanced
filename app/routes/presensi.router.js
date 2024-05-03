@@ -7,4 +7,6 @@ router.post("/", presensiController.create);
 router.put("/:id", presensiController.update);
 router.delete("/:id", presensiController.destroy);
 
+router.get("/:id/Mhs", presensiController.Mhs);
+
 module.exports = router;
